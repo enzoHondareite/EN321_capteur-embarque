@@ -25,7 +25,7 @@
 #include "lora_radio_helper.h"
 
 // Sensor
-#include "htu21d/htu21d.h"
+#include "Zest_sensor_PTRH.h"
 
 using namespace events;
 
@@ -56,7 +56,7 @@ uint8_t rx_buffer[60];
 /**
  * HTU21D sensor class object
  */
-sixtron::HTU21D sensor(P1_I2C_SDA, P1_I2C_SCL);
+Zest_sensor_PTRH sensor(P1_I2C_SDA, P1_I2C_SCL);
 
 /**
 * This event queue is the global event queue for both the
@@ -91,34 +91,8 @@ static lorawan_app_callbacks_t callbacks;
 int main(void)
 {
     DigitalOut _pin(LORA_ANTSW_PWR, 1);
-    sixtron::HTU21D::ErrorType err;
-    sixtron::htud21d_user_reg_t reg;
-    double result;
 
-    sensor.soft_reset();
-
-    err = sensor.read_user_register(&reg);
-
-    if (err == sixtron::HTU21D::ErrorType::Ok) {
-        printf("User register status:\n");
-        printf("Battery low: %s\nHeater: %s\nOTP reload: %s\n\n",
-                reg.end_of_battery ? "TRUE" : "FALSE",
-                reg.enable_heater ? "ON" : "OFF",
-                reg.disable_otp_reload ? "DISABLED" : "ENABLED");
-
-        reg.resolution = sixtron::MeasurementResolution::RH_12_Temp_14;
-        sensor.write_user_register(&reg);
-    }
-
-    err = sensor.read_humidity(&result);
-    if (err == sixtron::HTU21D::ErrorType::Ok) {
-        printf("Relative humidity: %f%%", result);
-    }
-
-    err = sensor.read_temperature(&result);
-    if (err == sixtron::HTU21D::ErrorType::Ok) {
-        printf("        Temperature: %fC\n", result);
-    }
+    sensor.init();
 
     // setup tracing
     setup_trace();
@@ -181,17 +155,15 @@ static void send_message()
     uint16_t packet_len;
     int16_t retcode;
 
-    sixtron::HTU21D::ErrorType err;
     double sensor_temp, sensor_hum;
     
-    err = sensor.read_humidity(&sensor_hum);
-    if (err == sixtron::HTU21D::ErrorType::Ok) {
-        printf("Relative humidity: %f%%", sensor_hum);
-    }
+    sensor.getHumidity(sensor_hum);
 
-    err = sensor.read_temperature(&sensor_temp);
-    if (err == sixtron::HTU21D::ErrorType::Ok) {
-        printf("        Temperfdfdsature: %fC\n", sensor_temp);
+    //sensor.getTemperature(sensor_temp);
+    if((sensor_temp = sensor.getTemperature()) == -1)
+    {
+        printf("Error\n");
+        return;
     }
 
     packet_len = sprintf((char *) tx_buffer, "{\"temperature\": %.2f, \"humidity\": %.2f}",
