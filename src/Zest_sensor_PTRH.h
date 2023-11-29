@@ -4,7 +4,7 @@
 #include "htu21d.h"
 
 #define Zest_sensor_PTRH_NO_ERROR 0
-#define Zest_sensor_PTRH_ON_ERROR 0
+#define Zest_sensor_PTRH_ON_ERROR 1
 
 class Zest_sensor_PTRH
 {
