@@ -85,6 +85,8 @@ Current connection...
 
 [ThingsBoard](https://thingsboard.cloud/dashboards/all/c3ac7470-87ba-11ee-bb3f-95d9fd3bcf97)
 
+![Dashboard image from ThingsBoard](https://github.com/enzoHondareite/EN321_capteur-embarque/blob/master/dashboard.PNG?raw=true)
+
 
 ## License
 
